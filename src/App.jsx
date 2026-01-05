@@ -86,188 +86,45 @@ function App() {
         }
     };
 
-    // Styles dengan CSS Variables untuk dark/light mode
-    const styles = {
-        container: {
-            minHeight: '100vh',
-            background: 'var(--bg-primary)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: '20px',
-            fontFamily: 'system-ui, -apple-system, sans-serif',
-            transition: 'background-color 0.3s ease'
-        },
-        card: {
-            background: 'var(--bg-card)',
-            padding: 'clamp(20px, 5vw, 30px)',
-            borderRadius: 'clamp(16px, 4vw, 20px)',
-            boxShadow: 'var(--shadow)',
-            width: '100%',
-            maxWidth: 'min(400px, 90vw)',
-            border: '1px solid var(--border)',
-            transition: 'all 0.3s ease'
-        },
-        title: {
-            fontSize: 'clamp(20px, 5vw, 24px)',
-            fontWeight: '800',
-            color: 'var(--text-primary)',
-            textAlign: 'center',
-            margin: '0 0 5px 0'
-        },
-        subtitle: {
-            fontSize: 'clamp(12px, 3vw, 14px)',
-            color: 'var(--text-secondary)',
-            textAlign: 'center',
-            margin: '0 0 25px 0'
-        },
-        statusBox: {
-            background: 'var(--bg-secondary)',
-            padding: 'clamp(12px, 4vw, 15px)',
-            borderRadius: '12px',
-            border: '1px solid var(--border)',
-            marginBottom: '20px'
-        },
+    // Styles untuk Light Mode (default)
+    const lightModeStyles = {
+        container: { minHeight: '100vh', background: '#f0f4f8', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', fontFamily: 'sans-serif' },
+        card: { background: 'white', padding: '30px', borderRadius: '20px', boxShadow: '0 10px 25px rgba(0,0,0,0.1)', width: '100%', maxWidth: '400px' },
+        title: { fontSize: '24px', fontWeight: '800', color: '#1a365d', textAlign: 'center', margin: '0 0 5px 0' },
+        subtitle: { fontSize: '14px', color: '#64748b', textAlign: 'center', margin: '0 0 25px 0' },
+        statusBox: { background: '#f8fafc', padding: '15px', borderRadius: '12px', border: '1px solid #e2e8f0', marginBottom: '20px' },
         inputGroup: { marginBottom: '20px' },
-        label: {
-            display: 'block',
-            fontSize: 'clamp(13px, 3vw, 14px)',
-            fontWeight: 'bold',
-            color: 'var(--text-primary)',
-            marginBottom: '8px'
-        },
-        inputWrap: {
-            display: 'flex',
-            alignItems: 'center',
-            border: '2px solid var(--border)',
-            borderRadius: '12px',
-            padding: 'clamp(10px, 3vw, 12px)',
-            background: 'var(--bg-input)',
-            transition: 'border-color 0.3s ease'
-        },
-        input: {
-            border: 'none',
-            width: '100%',
-            fontSize: 'clamp(16px, 4vw, 18px)',
-            fontWeight: 'bold',
-            outline: 'none',
-            marginLeft: '10px',
-            background: 'transparent',
-            color: 'var(--text-primary)',
-            caretColor: 'var(--primary)'
-        },
-        btnPrimary: {
-            width: '100%',
-            padding: 'clamp(14px, 4vw, 15px)',
-            borderRadius: '12px',
-            border: 'none',
-            background: 'var(--primary)',
-            color: 'white',
-            fontSize: 'clamp(15px, 3vw, 16px)',
-            fontWeight: 'bold',
-            cursor: 'pointer',
-            transition: 'all 0.2s ease'
-        },
-        btnSecondary: {
-            padding: 'clamp(6px, 2vw, 8px) clamp(10px, 2vw, 12px)',
-            borderRadius: '8px',
-            border: 'none',
-            background: 'var(--bg-secondary)',
-            cursor: 'pointer',
-            fontSize: 'clamp(11px, 2.5vw, 12px)',
-            color: 'var(--text-primary)',
-            fontWeight: '500',
-            transition: 'all 0.2s ease'
-        },
-        msg: {
-            marginTop: '20px',
-            padding: 'clamp(10px, 3vw, 12px)',
-            borderRadius: '8px',
-            textAlign: 'center',
-            fontWeight: 'bold',
-            transition: 'all 0.3s ease'
-        }
+        label: { display: 'block', fontSize: '14px', fontWeight: 'bold', color: '#475569', marginBottom: '8px' },
+        inputWrap: { display: 'flex', alignItems: 'center', border: '2px solid #e2e8f0', borderRadius: '12px', padding: '12px' },
+        input: { border: 'none', width: '100%', fontSize: '18px', fontWeight: 'bold', outline: 'none', marginLeft: '10px', background: 'white', color: '#1a365d' },
+        btnPrimary: { width: '100%', padding: '15px', borderRadius: '12px', border: 'none', background: '#2563eb', color: 'white', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer' },
+        btnSecondary: { padding: '8px 12px', borderRadius: '8px', border: 'none', background: '#e2e8f0', cursor: 'pointer', fontSize: '12px', color: '#475569' },
+        msg: { marginTop: '20px', padding: '12px', borderRadius: '8px', textAlign: 'center', fontWeight: 'bold' }
     };
+
+    // Styles untuk Dark Mode
+    const darkModeStyles = {
+        container: { minHeight: '100vh', background: '#0f172a', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', fontFamily: 'sans-serif' },
+        card: { background: '#1e293b', padding: '30px', borderRadius: '20px', boxShadow: '0 10px 25px rgba(0,0,0,0.3)', width: '100%', maxWidth: '400px' },
+        title: { fontSize: '24px', fontWeight: '800', color: '#f1f5f9', textAlign: 'center', margin: '0 0 5px 0' },
+        subtitle: { fontSize: '14px', color: '#94a3b8', textAlign: 'center', margin: '0 0 25px 0' },
+        statusBox: { background: '#334155', padding: '15px', borderRadius: '12px', border: '1px solid #475569', marginBottom: '20px' },
+        inputGroup: { marginBottom: '20px' },
+        label: { display: 'block', fontSize: '14px', fontWeight: 'bold', color: '#e2e8f0', marginBottom: '8px' },
+        inputWrap: { display: 'flex', alignItems: 'center', border: '2px solid #475569', borderRadius: '12px', padding: '12px', background: '#1e293b' },
+        input: { border: 'none', width: '100%', fontSize: '18px', fontWeight: 'bold', outline: 'none', marginLeft: '10px', background: '#1e293b', color: '#f1f5f9' },
+        btnPrimary: { width: '100%', padding: '15px', borderRadius: '12px', border: 'none', background: '#3b82f6', color: 'white', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer' },
+        btnSecondary: { padding: '8px 12px', borderRadius: '8px', border: 'none', background: '#475569', cursor: 'pointer', fontSize: '12px', color: '#e2e8f0' },
+        msg: { marginTop: '20px', padding: '12px', borderRadius: '8px', textAlign: 'center', fontWeight: 'bold' }
+    };
+
+    // Pilih styles berdasarkan mode
+    const styles = darkMode ? darkModeStyles : lightModeStyles;
 
     return (
         <>
-            {/* CSS Variables untuk Dark/Light Mode */}
+            {/* CSS untuk smooth transition */}
             <style>{`
-                :root {
-                    --primary: #2563eb;
-                    --primary-hover: #1d4ed8;
-                    --success: #059669;
-                    --error: #dc2626;
-                    
-                    /* Light Mode */
-                    --bg-primary: #f0f4f8;
-                    --bg-card: #ffffff;
-                    --bg-secondary: #f8fafc;
-                    --bg-input: #ffffff;
-                    --text-primary: #1a365d;
-                    --text-secondary: #64748b;
-                    --border: #e2e8f0;
-                    --shadow: 0 10px 25px rgba(0,0,0,0.1);
-                }
-                
-                .dark {
-                    --primary: #3b82f6;
-                    --primary-hover: #2563eb;
-                    --success: #10b981;
-                    --error: #ef4444;
-                    
-                    /* Dark Mode */
-                    --bg-primary: #0f172a;
-                    --bg-card: #1e293b;
-                    --bg-secondary: #334155;
-                    --bg-input: #1e293b;
-                    --text-primary: #f1f5f9;
-                    --text-secondary: #94a3b8;
-                    --border: #475569;
-                    --shadow: 0 10px 25px rgba(0,0,0,0.3);
-                }
-                
-                /* Responsive Font Sizes */
-                html {
-                    font-size: 16px;
-                }
-                
-                @media (max-width: 768px) {
-                    html {
-                        font-size: 14px;
-                    }
-                }
-                
-                @media (max-width: 480px) {
-                    html {
-                        font-size: 13px;
-                    }
-                }
-                
-                /* Button hover effects */
-                button:hover:not(:disabled) {
-                    opacity: 0.9;
-                    transform: translateY(-1px);
-                }
-                
-                button:active:not(:disabled) {
-                    transform: translateY(0);
-                }
-                
-                /* Disabled button */
-                button:disabled {
-                    opacity: 0.6;
-                    cursor: not-allowed;
-                    transform: none !important;
-                }
-                
-                /* Focus styles for accessibility */
-                *:focus {
-                    outline: 2px solid var(--primary);
-                    outline-offset: 2px;
-                }
-                
-                /* Smooth transitions */
                 * {
                     transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
                 }
@@ -280,7 +137,7 @@ function App() {
                         display: 'flex',
                         justifyContent: 'space-between',
                         alignItems: 'center',
-                        marginBottom: '20px'
+                        marginBottom: '10px'
                     }}>
                         <div>
                             <h1 style={styles.title}>CATATAN EK</h1>
@@ -289,8 +146,9 @@ function App() {
                         <button
                             onClick={() => setDarkMode(!darkMode)}
                             style={{
-                                background: 'var(--bg-secondary)',
-                                border: '1px solid var(--border)',
+                                background: darkMode ? '#334155' : '#e2e8f0',
+                                border: '1px solid',
+                                borderColor: darkMode ? '#475569' : '#cbd5e1',
                                 borderRadius: '50%',
                                 width: '40px',
                                 height: '40px',
@@ -298,7 +156,7 @@ function App() {
                                 alignItems: 'center',
                                 justifyContent: 'center',
                                 cursor: 'pointer',
-                                color: 'var(--text-primary)'
+                                color: darkMode ? '#fbbf24' : '#475569'
                             }}
                             aria-label={darkMode ? "Switch to light mode" : "Switch to dark mode"}
                         >
@@ -308,37 +166,28 @@ function App() {
 
                     <div style={styles.statusBox}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <span style={{ fontSize: 'clamp(12px, 3vw, 13px)', fontWeight: 'bold', color: 'var(--text-primary)' }}>
+                            <span style={{ fontSize: '13px', fontWeight: 'bold', color: darkMode ? '#e2e8f0' : '#475569' }}>
                                 Status Hari Ini:
                             </span>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                {checkingStatus && <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>Mengecek...</span>}
-                                <RefreshCw
-                                    size={16}
-                                    onClick={checkStatus}
-                                    style={{
-                                        cursor: 'pointer',
-                                        color: 'var(--primary)',
-                                        animation: checkingStatus ? 'spin 1s linear infinite' : 'none'
-                                    }}
-                                />
-                            </div>
+                            <RefreshCw
+                                size={16}
+                                onClick={checkStatus}
+                                style={{
+                                    cursor: 'pointer',
+                                    color: darkMode ? '#60a5fa' : '#2563eb',
+                                    animation: checkingStatus ? 'spin 1s linear infinite' : 'none'
+                                }}
+                            />
                         </div>
-                        {!checkingStatus && (
-                            <div style={{ marginTop: '10px', color: todayStatus?.hasInput ? 'var(--success)' : 'var(--text-secondary)' }}>
+                        {checkingStatus ? <p style={{ color: darkMode ? '#cbd5e1' : '#64748b', marginTop: '10px' }}>Mengecek...</p> : (
+                            <div style={{ marginTop: '10px', color: todayStatus?.hasInput ? '#059669' : (darkMode ? '#94a3b8' : '#64748b') }}>
                                 {todayStatus?.hasInput ? (
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                                         <div>
                                             <b>Rp {todayStatus.amount?.toLocaleString()}</b>
-                                            <div style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>{todayStatus.time} WIB</div>
+                                            <div style={{ fontSize: '11px', color: darkMode ? '#94a3b8' : '#64748b' }}>{todayStatus.time} WIB</div>
                                         </div>
-                                        <button
-                                            style={styles.btnSecondary}
-                                            onClick={() => {
-                                                setIsEditing(true);
-                                                setAmount(todayStatus.amount.toString());
-                                            }}
-                                        >
+                                        <button style={styles.btnSecondary} onClick={() => { setIsEditing(true); setAmount(todayStatus.amount.toString()) }}>
                                             Edit
                                         </button>
                                     </div>
@@ -354,53 +203,29 @@ function App() {
 
                     <form onSubmit={handleSubmit}>
                         <div style={styles.inputGroup}>
-                            <label style={styles.label}>
-                                {isEditing ? "Edit Data" : "Input Baru"}
-                            </label>
+                            <label style={styles.label}>{isEditing ? "Edit Data" : "Input Baru"}</label>
                             <div style={styles.inputWrap}>
-                                <DollarSign size={20} color="var(--text-secondary)" />
+                                <DollarSign size={20} color={darkMode ? '#94a3b8' : '#64748b'} />
                                 <input
                                     type="number"
                                     style={styles.input}
                                     value={amount}
                                     onChange={(e) => setAmount(e.target.value)}
                                     placeholder="450000"
-                                    required
-                                    min="400000"
-                                    max="500000"
-                                    step="1000"
                                 />
                             </div>
-                            <small style={{ color: 'var(--text-secondary)', display: 'block', marginTop: '4px' }}>
-                                Range: 400k - 500k
-                            </small>
+                            <small style={{ color: darkMode ? '#94a3b8' : '#64748b' }}>Range: 400k - 500k</small>
                         </div>
 
-                        <button
-                            type="submit"
-                            disabled={loading || (todayStatus?.hasInput && !isEditing)}
+                        <button type="submit" disabled={loading || (todayStatus?.hasInput && !isEditing)}
                             style={{
                                 ...styles.btnPrimary,
-                                background: loading ? '#94a3b8' : (isEditing ? 'var(--success)' : 'var(--primary)'),
-                                cursor: loading ? 'not-allowed' : 'pointer'
-                            }}
-                        >
-                            {loading ? (
-                                <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-                                    <RefreshCw size={16} style={{ animation: 'spin 1s linear infinite' }} />
-                                    Memproses...
-                                </span>
-                            ) : isEditing ? (
-                                <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-                                    <Save size={16} />
-                                    Update Data
-                                </span>
-                            ) : (
-                                <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-                                    <CheckCircle size={16} />
-                                    Simpan Sekarang
-                                </span>
-                            )}
+                                background: loading ? (darkMode ? '#64748b' : '#94a3b8') :
+                                    (isEditing ? (darkMode ? '#10b981' : '#059669') :
+                                        (darkMode ? '#3b82f6' : '#2563eb')),
+                                opacity: loading ? 0.7 : 1
+                            }}>
+                            {loading ? "Memproses..." : (isEditing ? "Update Data" : "Simpan Sekarang")}
                         </button>
 
                         {isEditing && (
@@ -411,14 +236,11 @@ function App() {
                                     ...styles.btnSecondary,
                                     width: '100%',
                                     marginTop: '10px',
-                                    background: 'transparent',
-                                    border: '1px solid var(--border)'
+                                    background: darkMode ? '#475569' : '#e2e8f0',
+                                    color: darkMode ? '#e2e8f0' : '#475569'
                                 }}
                             >
-                                <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-                                    <XCircle size={16} />
-                                    Batal Edit
-                                </span>
+                                Batal
                             </button>
                         )}
                     </form>
@@ -427,16 +249,13 @@ function App() {
                         <div style={{
                             ...styles.msg,
                             background: status.type === 'success'
-                                ? 'var(--success)'
-                                : 'var(--error)',
-                            color: 'white',
-                            opacity: status.message ? 1 : 0,
-                            transform: status.message ? 'translateY(0)' : 'translateY(-10px)'
+                                ? (darkMode ? '#065f46' : '#dcfce7')
+                                : (darkMode ? '#7f1d1d' : '#fee2e2'),
+                            color: status.type === 'success'
+                                ? (darkMode ? '#d1fae5' : '#166534')
+                                : (darkMode ? '#fecaca' : '#991b1b')
                         }}>
-                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-                                {status.type === 'success' ? <CheckCircle size={18} /> : <AlertCircle size={18} />}
-                                {status.message}
-                            </div>
+                            {status.message}
                         </div>
                     )}
                 </div>
