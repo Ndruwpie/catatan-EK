@@ -194,6 +194,26 @@
   font-family: inherit;
 }
 
+.input-wrap select {
+  border: none;
+  background: transparent;
+  font-size: 15px;
+  width: 100%;
+  color: var(--text);
+  outline: none;
+  font-family: inherit;
+}
+
+.dark .input-wrap select {
+  color: var(--text);
+  background: transparent;
+}
+
+.dark .input-wrap select option {
+  color: #111827;
+  background: #ffffff;
+}
+
 .input-wrap .prefix {
   font-weight: 700;
   color: var(--muted);
@@ -282,6 +302,10 @@
   background: var(--accent);
   color: white;
   border-color: var(--accent);
+}
+
+.dark .segmented button {
+  color: #ffffff;
 }
 
 .history-list {

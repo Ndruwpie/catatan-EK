@@ -9,10 +9,11 @@ import {
   RefreshCw,
   Sun,
 } from 'lucide-react';
+import ExcelJS from 'exceljs';
 import './App.css';
 
 const SCRIPT_URL =
-  'https://script.google.com/macros/s/AKfycbwpMq2i4oJOItabAuNPyVask62ZYL87WhYXUHu9kIiZiyYzHDcsFuSrycdptj_kQVJi/exec';
+  'https://script.google.com/macros/s/AKfycbyBzdwYbNle4MfR33Ep6XJvTzynhszbkQLwORl3W09-Lc34rGFlFOH6g3FPzuCHklb1/exec';
 
 const rupiah = new Intl.NumberFormat('id-ID', {
   style: 'currency',
@@ -20,7 +21,20 @@ const rupiah = new Intl.NumberFormat('id-ID', {
   maximumFractionDigits: 0,
 });
 
-const toInputDate = (date) => date.toISOString().slice(0, 10);
+const pad2 = (value) => String(value).padStart(2, '0');
+
+const toInputDate = (date) => {
+  const parsed = new Date(date);
+  if (Number.isNaN(parsed.getTime())) return '';
+  return `${parsed.getFullYear()}-${pad2(parsed.getMonth() + 1)}-${pad2(parsed.getDate())}`;
+};
+
+const CATEGORY_OPTIONS = [
+  'Gorengan',
+  'Jajanan',
+  'Jastip makan siang',
+  'Jastip lainnya',
+];
 
 const normalizeDate = (value) => {
   if (!value) return '';
@@ -32,17 +46,26 @@ const normalizeDate = (value) => {
 
 const normalizeEntry = (item) => {
   if (Array.isArray(item)) {
+    const rawCategory = item[2];
+    const rawTime = item[3];
+    const inferredCategory =
+      typeof rawCategory === 'string' && rawCategory.includes(':') ? '' : rawCategory;
+    const inferredTime =
+      typeof rawCategory === 'string' && rawCategory.includes(':') ? rawCategory : rawTime;
+    const inferredRow = item.length >= 5 ? item[4] : item[3];
     return {
       date: normalizeDate(item[0]),
       amount: Number(item[1]),
-      time: item[2] || '',
-      row: item[3] || null,
+      category: inferredCategory || '',
+      time: inferredTime || '',
+      row: inferredRow || null,
     };
   }
 
   return {
     date: normalizeDate(item?.date || item?.tanggal || item?.day || item?.createdAt),
     amount: Number(item?.amount || item?.pemasukan || item?.nominal),
+    category: item?.category || item?.kategori || '',
     time: item?.time || item?.jam || '',
     row: item?.row || item?.rowIndex || null,
   };
@@ -64,7 +87,7 @@ const parseHistory = (result) => {
 
 const formatDateLong = (value) => {
   if (!value) return '-';
-  const parsed = new Date(value);
+  const parsed = new Date(`${value}T00:00:00`);
   if (Number.isNaN(parsed.getTime())) return value;
   return parsed.toLocaleDateString('id-ID', {
     weekday: 'long',
@@ -72,6 +95,19 @@ const formatDateLong = (value) => {
     month: 'long',
     year: 'numeric',
   });
+};
+
+const formatDateWithTime = (dateValue, timeValue) => {
+  const dateText = formatDateLong(dateValue);
+  if (!timeValue) return dateText;
+  return `${dateText} ${timeValue}`;
+};
+
+const dateValue = (value) => {
+  if (!value) return 0;
+  const parsed = new Date(`${value}T00:00:00`);
+  if (Number.isNaN(parsed.getTime())) return 0;
+  return parsed.getTime();
 };
 
 function App() {
@@ -83,6 +119,7 @@ function App() {
   const [isEditing, setIsEditing] = useState(false);
   const [editRow, setEditRow] = useState(null);
   const [selectedDate, setSelectedDate] = useState(() => toInputDate(new Date()));
+  const [selectedCategory, setSelectedCategory] = useState(CATEGORY_OPTIONS[0]);
   const [history, setHistory] = useState([]);
   const [historyState, setHistoryState] = useState({ loading: false, error: '' });
   const [historyView, setHistoryView] = useState('today');
@@ -117,7 +154,7 @@ function App() {
       const response = await fetch(`${SCRIPT_URL}?action=history`);
       const result = await response.json();
       const parsed = parseHistory(result);
-      parsed.sort((a, b) => b.date.localeCompare(a.date));
+      parsed.sort((a, b) => dateValue(b.date) - dateValue(a.date));
       setHistory(parsed);
     } catch (err) {
       console.error('Gagal mengambil riwayat', err);
@@ -146,6 +183,12 @@ function App() {
     [history, selectedDate]
   );
 
+  useEffect(() => {
+    if (selectedEntry && !isEditing) {
+      setSelectedCategory(selectedEntry.category || CATEGORY_OPTIONS[0]);
+    }
+  }, [selectedEntry, isEditing]);
+
   const todayEntry = useMemo(() => {
     const historyToday = history.find((entry) => entry.date === todayKey);
     if (historyToday) return historyToday;
@@ -153,6 +196,7 @@ function App() {
       return {
         date: todayKey,
         amount: Number(todayStatus.amount),
+        category: todayStatus.category || '',
         time: todayStatus.time || '',
         row: todayStatus.row || null,
       };
@@ -161,7 +205,10 @@ function App() {
   }, [history, todayStatus, todayKey]);
 
   const previousEntries = useMemo(
-    () => history.filter((entry) => entry.date !== todayKey),
+    () =>
+      history.filter(
+        (entry) => entry.date && entry.date < todayKey
+      ),
     [history, todayKey]
   );
 
@@ -176,8 +223,8 @@ function App() {
       return;
     }
 
-    if (val < 400000 || val > 500000) {
-      setStatus({ type: 'error', message: '❌ Range harus 400rb - 500rb' });
+    if (val < 50000 || val > 500000) {
+      setStatus({ type: 'error', message: '❌ Range harus 50rb - 500rb' });
       return;
     }
 
@@ -188,6 +235,12 @@ function App() {
       const formData = new FormData();
       formData.append('pemasukan', val);
       formData.append('tanggal', selectedDate);
+      formData.append('kategori', selectedCategory);
+      if (!isEditing) {
+        const now = new Date();
+        const jam = `${pad2(now.getHours())}:${pad2(now.getMinutes())}`;
+        formData.append('jam', jam);
+      }
       if (isEditing && editRow) {
         formData.append('row', editRow);
       }
@@ -215,10 +268,12 @@ function App() {
     if (!entry) return;
     setIsEditing(true);
     setAmount(String(entry.amount));
+    setSelectedCategory(entry.category || CATEGORY_OPTIONS[0]);
+    setSelectedDate(entry.date || toInputDate(new Date()));
     setEditRow(entry.row || null);
   };
 
-  const exportToExcel = () => {
+  const exportToExcel = async () => {
     const dataSource = history.length
       ? history
       : todayEntry
@@ -230,20 +285,52 @@ function App() {
       return;
     }
 
-    const headers = ['Tanggal', 'Pemasukan', 'Waktu'];
-    const rows = dataSource.map((entry) => [
-      formatDateLong(entry.date),
-      entry.amount,
-      entry.time || '',
-    ]);
-    const csv = [headers, ...rows]
-      .map((row) => row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(','))
-      .join('\n');
+    const workbook = new ExcelJS.Workbook();
+    const sheet = workbook.addWorksheet('Pemasukan');
 
-    const blob = new Blob([`\uFEFF${csv}`], { type: 'text/csv;charset=utf-8;' });
+    sheet.columns = [
+      { header: 'no', key: 'no', width: 6 },
+      { header: 'tanggal', key: 'tanggal', width: 26 },
+      { header: 'kategori', key: 'kategori', width: 20 },
+      { header: 'pemasukan', key: 'pemasukan', width: 14 },
+    ];
+
+    dataSource.forEach((entry, index) => {
+      sheet.addRow({
+        no: index + 1,
+        tanggal: formatDateWithTime(entry.date, entry.time),
+        kategori: entry.category || '-',
+        pemasukan: entry.amount,
+      });
+    });
+
+    const border = {
+      top: { style: 'thin' },
+      left: { style: 'thin' },
+      bottom: { style: 'thin' },
+      right: { style: 'thin' },
+    };
+
+    sheet.eachRow({ includeEmpty: true }, (row, rowNumber) => {
+      row.eachCell({ includeEmpty: true }, (cell) => {
+        cell.border = border;
+        cell.alignment = { vertical: 'middle', horizontal: 'left' };
+        if (rowNumber === 1) {
+          cell.font = { bold: true };
+        }
+      });
+    });
+
+    sheet.getColumn(4).numFmt = '#,##0';
+    sheet.getColumn(4).alignment = { horizontal: 'right', vertical: 'middle' };
+
+    const buffer = await workbook.xlsx.writeBuffer();
+    const blob = new Blob([buffer], {
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
-    link.download = `catatan-ek-${toInputDate(new Date())}.csv`;
+    link.download = `catatan-ek-${toInputDate(new Date())}.xlsx`;
     document.body.appendChild(link);
     link.click();
     link.remove();
@@ -348,11 +435,28 @@ function App() {
                   </div>
                 </label>
 
+                <label>
+                  Jenis Pemasukan
+                  <div className="input-wrap">
+                    <select
+                      value={selectedCategory}
+                      onChange={(e) => setSelectedCategory(e.target.value)}
+                      required
+                    >
+                      {CATEGORY_OPTIONS.map((item) => (
+                        <option key={item} value={item}>
+                          {item}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </label>
+
                 {selectedEntry && !isEditing && (
                   <div className="inline-status">
                     <CheckCircle size={16} />
                     <span>
-                      Sudah ada pemasukan {rupiah.format(selectedEntry.amount)} pada{' '}
+                      Sudah ada pemasukan {rupiah.format(selectedEntry.amount)} ({selectedEntry.category || 'Tanpa kategori'}) pada{' '}
                       {formatDateLong(selectedEntry.date)}.
                     </span>
                     <button
@@ -379,7 +483,7 @@ function App() {
                       placeholder="450000"
                     />
                   </div>
-                  <small className="muted">Range: 400k - 500k</small>
+                  <small className="muted">Range: 50k - 500k</small>
                 </label>
 
                 <div className="button-row">
@@ -457,7 +561,9 @@ function App() {
                   <div className="history-item">
                     <div>
                       <p>{todayEntry ? formatDateLong(todayEntry.date) : 'Hari ini'}</p>
-                      <span className="muted">{todayEntry?.time || 'Belum input'}</span>
+                      <span className="muted">
+                        {todayEntry?.category || 'Tanpa kategori'} · {todayEntry?.time || 'Belum input'}
+                      </span>
                     </div>
                     <strong>{todayEntry ? rupiah.format(todayEntry.amount) : '-'}</strong>
                   </div>
@@ -469,7 +575,9 @@ function App() {
                       <div className="history-item" key={entry.date}>
                         <div>
                           <p>{formatDateLong(entry.date)}</p>
-                          <span className="muted">{entry.time || '—'}</span>
+                          <span className="muted">
+                            {entry.category || 'Tanpa kategori'} · {entry.time || '—'}
+                          </span>
                         </div>
                         <strong>{rupiah.format(entry.amount)}</strong>
                       </div>
@@ -484,7 +592,9 @@ function App() {
                       <div className="history-item" key={`${entry.date}-${entry.amount}`}>
                         <div>
                           <p>{formatDateLong(entry.date)}</p>
-                          <span className="muted">{entry.time || '—'}</span>
+                          <span className="muted">
+                            {entry.category || 'Tanpa kategori'} · {entry.time || '—'}
+                          </span>
                         </div>
                         <strong>{rupiah.format(entry.amount)}</strong>
                       </div>
